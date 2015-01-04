@@ -77,7 +77,7 @@ public:
 		{
 			currentNode->visited = true;
 
-			// Go though connected, unvisited, nodes, and see if we can
+			// Go through connected, unvisited, nodes, and see if we can
 			// provide the cheapest path to them. If we do, record it.
 			for (auto& connection : currentNode->connections)
 			{
