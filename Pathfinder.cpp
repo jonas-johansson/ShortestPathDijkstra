@@ -12,8 +12,8 @@ private:
 		shared_ptr<Node> node;
 		float traversalCost;
 
-		Connection(shared_ptr<Node>& _node, float _cost)
-			: node(_node), traversalCost(_cost)
+		Connection(shared_ptr<Node>& _node, float _traversalCost)
+			: node(_node), traversalCost(_traversalCost)
 		{
 		}
 	};
@@ -37,9 +37,9 @@ public:
 		return node;
 	}
 
-	void Connect(shared_ptr<Node> node, shared_ptr<Node> neighbor, float cost)
+	void Connect(shared_ptr<Node> node, shared_ptr<Node> neighbor, float traversalCost)
 	{
-		node->connections.push_back(Connection(neighbor, cost));
+		node->connections.push_back(Connection(neighbor, traversalCost));
 	}
 
 	Nodes FindPath(shared_ptr<Node> start, shared_ptr<Node> end)
@@ -118,79 +118,96 @@ public:
 
 void RunPathfinderTests()
 {
-	// No path found when there's no connection
+	// No path found when there are no connections
 	{
-		Graph g;
-		auto a = g.CreateNode();
-		auto b = g.CreateNode();
-		auto path = g.FindPath(a, b);
+		Graph graph;
+
+		auto nodeA = graph.CreateNode();
+		auto nodeB = graph.CreateNode();
+
+		auto path = graph.FindPath(nodeA, nodeB);
+
 		assert(path.empty());
 	}
-	// Path found when there's a simple connection
+
+	// Two-step path found
 	{
-		Graph g;
-		auto a = g.CreateNode();
-		auto b = g.CreateNode();
-		g.Connect(a, b, 1.0f);
-		auto path = g.FindPath(a, b);
+		Graph graph;
+		
+		auto nodeA = graph.CreateNode();
+		auto nodeB = graph.CreateNode();
+		
+		graph.Connect(nodeA, nodeB, 1.0f);
+		
+		auto path = graph.FindPath(nodeA, nodeB);
+		
 		assert(path.size() == 2);
-		assert(path[0] == a);
-		assert(path[1] == b);
+		assert(path[0] == nodeA);
+		assert(path[1] == nodeB);
 	}
-	// Path found when there's a complex connection
+
+	// Three-step path found
 	{
-		Graph g;
-		auto a = g.CreateNode();
-		auto b = g.CreateNode();
-		auto c = g.CreateNode();
-		g.Connect(a, b, 1.0f);
-		g.Connect(b, c, 1.0f);
-		auto path = g.FindPath(a, c);
+		Graph graph;
+
+		auto nodeA = graph.CreateNode();
+		auto nodeB = graph.CreateNode();
+		auto nodeC = graph.CreateNode();
+
+		graph.Connect(nodeA, nodeB, 1.0f);
+		graph.Connect(nodeB, nodeC, 1.0f);
+
+		auto path = graph.FindPath(nodeA, nodeC);
+
 		assert(path.size() == 3);
-		assert(path[0] == a);
-		assert(path[1] == b);
-		assert(path[2] == c);
+		assert(path[0] == nodeA);
+		assert(path[1] == nodeB);
+		assert(path[2] == nodeC);
 	}
+
 	// Cheapest path taken #1
 	{
-		Graph g;
-		auto a = g.CreateNode();
-		auto b = g.CreateNode();
-		auto c = g.CreateNode();
+		Graph graph;
 
-		// Route 1
-		g.Connect(a, b, 1.0f);
-		g.Connect(b, c, 1.0f);
+		auto nodeA = graph.CreateNode();
+		auto nodeB = graph.CreateNode();
+		auto nodeC = graph.CreateNode();
 
-		// Route 2
-		g.Connect(a, c, 8.0f);
+		// Cheap path
+		graph.Connect(nodeA, nodeB, 1.0f);
+		graph.Connect(nodeB, nodeC, 1.0f);
 
-		auto path = g.FindPath(a, c);
+		// Expensive path
+		graph.Connect(nodeA, nodeC, 8.0f);
+
+		auto path = graph.FindPath(nodeA, nodeC);
 
 		assert(path.size() == 3);
-		assert(path[0] == a);
-		assert(path[1] == b);
-		assert(path[2] == c);
+		assert(path[0] == nodeA);
+		assert(path[1] == nodeB);
+		assert(path[2] == nodeC);
 	}
+
 	// Cheapest path taken #2
 	{
-		Graph g;
-		auto a = g.CreateNode();
-		auto b = g.CreateNode();
-		auto c = g.CreateNode();
+		Graph graph;
 
-		// Route 1
-		g.Connect(a, b, 5.0f);
-		g.Connect(b, c, 5.0f);
+		auto nodeA = graph.CreateNode();
+		auto nodeB = graph.CreateNode();
+		auto nodeC = graph.CreateNode();
 
-		// Route 2
-		g.Connect(a, c, 2.0f);
+		// Expensive path
+		graph.Connect(nodeA, nodeB, 5.0f);
+		graph.Connect(nodeB, nodeC, 5.0f);
 
-		auto path = g.FindPath(a, c);
+		// Cheap path
+		graph.Connect(nodeA, nodeC, 2.0f);
+
+		auto path = graph.FindPath(nodeA, nodeC);
 
 		assert(path.size() == 2);
-		assert(path[0] == a);
-		assert(path[1] == c);
+		assert(path[0] == nodeA);
+		assert(path[1] == nodeC);
 	}
 }
 
