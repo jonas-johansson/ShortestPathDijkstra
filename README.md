@@ -1,4 +1,5 @@
-<h1>Shortest Path<h1>
+Shortest Path Using Dijkstra's Algorithm
+========================================
 
 Example C++ project showing how to use Dijkstra's algorithm to find the shortest path through a graph.
 
