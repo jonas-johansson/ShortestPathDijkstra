@@ -1,0 +1,1 @@
+Example project showing how to find the shortest path through a graph, using Dijkstra's algorithm.
