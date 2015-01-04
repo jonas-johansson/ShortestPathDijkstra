@@ -25,18 +25,18 @@ private:
 		vector<Connection> connections;
 		bool visited;
 		float tentativeCost;
-		NodePtr link;
+		NodePtr prev;
 	};
 
 	typedef vector<NodePtr> Nodes;
-	Nodes m_nodes;
+	Nodes m_allNodes;
 
 	NodePtr GetUnvisitedNodeWithLowestTentativeCost()
 	{
 		auto cheapestNode = NodePtr();
 		auto cheapestCost = numeric_limits<float>::infinity();
 		
-		for (auto& node : m_nodes)
+		for (auto& node : m_allNodes)
 		{
 			if (!node->visited && node->tentativeCost < cheapestCost)
 			{
@@ -52,7 +52,7 @@ public:
 	NodePtr CreateNode()
 	{
 		auto node = make_shared<Node>();
-		m_nodes.push_back(node);
+		m_allNodes.push_back(node);
 		return node;
 	}
 
@@ -61,48 +61,45 @@ public:
 		node->connections.push_back(Connection(neighbor, traversalCost));
 	}
 
+	// Find a path using Dijkstra's algorithm
 	Nodes FindPath(NodePtr startNode, NodePtr endNode)
 	{
-		// Set initial tentative cost
-		for (auto& node : m_nodes)
+		// Prepare
+		for (auto& node : m_allNodes)
 		{
 			node->visited = false;
-
-			if (node == startNode)
-				node->tentativeCost = 0.0f;
-			else
-				node->tentativeCost = numeric_limits<float>::infinity();
+			node->tentativeCost = (node == startNode) ? 0.0f : numeric_limits<float>::infinity();
 		}
 
+		// Explore the graph
 		auto currentNode = startNode;
-
 		while (currentNode)
 		{
 			currentNode->visited = true;
 
-			// Go though unvisited neighbor nodes
+			// Go though connected, unvisited, nodes, and see if we can
+			// provide the cheapest path to them. If we do, record it.
 			for (auto& connection : currentNode->connections)
 			{
-				if (!connection.node->visited)
+				auto& connectedNode = connection.node;
+				if (!connectedNode->visited)
 				{
-					// If we're a cheaper link to the neighbor node ...
 					auto cost = currentNode->tentativeCost + connection.traversalCost;
-					if (cost < connection.node->tentativeCost)
+					if (cost < connectedNode->tentativeCost)
 					{
-						// ... record it
-						connection.node->tentativeCost = cost;
-						connection.node->link = currentNode;
+						connectedNode->tentativeCost = cost;
+						connectedNode->prev = currentNode;
 					}
 				}
 			}
 
-			// If we just visited the end node, we found a path
-			if (currentNode == endNode)
+			bool reachedEnd = (currentNode == endNode);
+			if (reachedEnd)
 			{
 				// Generate the path by traversing the chain
-				// backwards from end to start through the links
+				// from end to start through the links
 				Nodes path;
-				for (auto node = endNode; node != startNode; node = node->link)
+				for (auto node = endNode; node != startNode; node = node->prev)
 				{
 					path.push_back(node);
 				}
