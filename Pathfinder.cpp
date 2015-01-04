@@ -7,12 +7,14 @@ class Graph
 private:
 	struct Node;
 
+	typedef shared_ptr<Node> NodePtr;
+
 	struct Connection
 	{
-		shared_ptr<Node> node;
+		NodePtr node;
 		float traversalCost;
 
-		Connection(shared_ptr<Node>& _node, float _traversalCost)
+		Connection(NodePtr& _node, float _traversalCost)
 			: node(_node), traversalCost(_traversalCost)
 		{
 		}
@@ -23,43 +25,58 @@ private:
 		vector<Connection> connections;
 		bool visited;
 		float tentativeCost;
-		shared_ptr<Node> link;
+		NodePtr link;
 	};
 
-	typedef vector<shared_ptr<Node>> Nodes;
+	typedef vector<NodePtr> Nodes;
 	Nodes m_nodes;
+
+	NodePtr GetUnvisitedNodeWithLowestTentativeCost()
+	{
+		auto cheapestNode = NodePtr();
+		auto cheapestCost = numeric_limits<float>::infinity();
+		
+		for (auto& node : m_nodes)
+		{
+			if (!node->visited && node->tentativeCost < cheapestCost)
+			{
+				cheapestNode = node;
+				cheapestCost = node->tentativeCost;
+			}
+		}
+
+		return cheapestNode;
+	}
 	
 public:
-	shared_ptr<Node> CreateNode()
+	NodePtr CreateNode()
 	{
 		auto node = make_shared<Node>();
 		m_nodes.push_back(node);
 		return node;
 	}
 
-	void Connect(shared_ptr<Node> node, shared_ptr<Node> neighbor, float traversalCost)
+	void Connect(NodePtr node, NodePtr neighbor, float traversalCost)
 	{
 		node->connections.push_back(Connection(neighbor, traversalCost));
 	}
 
-	Nodes FindPath(shared_ptr<Node> start, shared_ptr<Node> end)
+	Nodes FindPath(NodePtr startNode, NodePtr endNode)
 	{
-		const float infinity = numeric_limits<float>::infinity();
-
 		// Set initial tentative cost
 		for (auto& node : m_nodes)
 		{
 			node->visited = false;
 
-			if (node == start)
+			if (node == startNode)
 				node->tentativeCost = 0.0f;
 			else
-				node->tentativeCost = infinity;
+				node->tentativeCost = numeric_limits<float>::infinity();
 		}
 
-		auto currentNode = start;
+		auto currentNode = startNode;
 
-		while (true)
+		while (currentNode)
 		{
 			currentNode->visited = true;
 
@@ -80,36 +97,21 @@ public:
 			}
 
 			// If we just visited the end node, we found a path
-			if (currentNode == end)
+			if (currentNode == endNode)
 			{
-				// We're done, traverse the chain backwards
-				// from end to start through the links
+				// Generate the path by traversing the chain
+				// backwards from end to start through the links
 				Nodes path;
-				for (auto node = end; node != start; node = node->link)
+				for (auto node = endNode; node != startNode; node = node->link)
 				{
 					path.push_back(node);
 				}
-				path.push_back(start);
+				path.push_back(startNode);
 				reverse(path.begin(), path.end());
 				return path;
 			}
 
-			// Pick the node with the cheapest tentative cost
-			auto cheapestNode = shared_ptr<Node>();
-			auto cheapestCost = infinity;
-			for (auto& node : m_nodes)
-			{
-				if (!node->visited && node->tentativeCost < cheapestCost)
-				{
-					cheapestNode = node;
-					cheapestCost = node->tentativeCost;
-				}
-			}
-
-			if (cheapestNode)
-				currentNode = cheapestNode;
-			else
-				break; // Destination can't be reached
+			currentNode = GetUnvisitedNodeWithLowestTentativeCost();
 		}
 
 		return Nodes();
