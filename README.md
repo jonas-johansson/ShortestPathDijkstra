@@ -1,8 +1,10 @@
-Example of how to use Dijkstra's algorithm to find the shortest path through a graph.
+<h1>Shortest Path<h1>
 
-* Written for clarity - not for performance.
-* Test-driven development used.
-* Open and compile with Visual Studio 2013.
+Example C++ project showing how to use Dijkstra's algorithm to find the shortest path through a graph.
 
-Reference
+* Written for clarity - not for performance
+* Test-driven development method used
+* Visual Studio 2013 project provided
+
+<h2>Reference</h2>
 * <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's Algorithm, Wikipedia</a>
