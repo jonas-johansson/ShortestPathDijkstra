@@ -77,13 +77,16 @@ public:
 		{
 			currentNode->visited = true;
 
-			// Go through connected, unvisited, nodes, and see if we can
+			// Go through connected unvisited nodes, and see if we can
 			// provide the cheapest path to them. If we do, record it.
 			for (auto& connection : currentNode->connections)
 			{
 				auto& connectedNode = connection.node;
 				if (!connectedNode->visited)
 				{
+					// Calculate the cost of going from the start, through the current node,
+					// to the connected node. If the cost of this path is lower than that of
+					// the current one, we redirect.
 					auto cost = currentNode->tentativeCost + connection.traversalCost;
 					if (cost < connectedNode->tentativeCost)
 					{
@@ -210,7 +213,7 @@ void RunPathfinderTests()
 	}
 }
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char** argv)
 {
 	RunPathfinderTests();
 	return 0;
