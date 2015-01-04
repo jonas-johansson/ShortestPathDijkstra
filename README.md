@@ -1,7 +1,7 @@
 Shortest Path Using Dijkstra's Algorithm
 ========================================
 
-Example C++ project showing how to use Dijkstra's algorithm to find the shortest path through a graph.
+Example C++ program showing how to use Dijkstra's algorithm to find the shortest path through a graph.
 
 * Written for clarity - not for performance
 * Test-driven development method used
